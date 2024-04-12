@@ -1,4 +1,4 @@
-package com.example.database
+package com.example.news_main
 
 import org.junit.Test
 
