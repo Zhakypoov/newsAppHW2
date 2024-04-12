@@ -55,6 +55,5 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.android)
 
-    implementation(project(":database"))
-    implementation(project(":newsapi"))
+    implementation(project(":news-data"))
 }
