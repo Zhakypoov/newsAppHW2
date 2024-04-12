@@ -1,7 +1,7 @@
 package com.example.newsapi
 
 import androidx.annotation.IntRange
-import com.example.newsapi.models.ArticleDTO
+import com.example.newsapi.models.mappers.ArticleDTO
 import com.example.newsapi.models.LanguageDTO
 import com.example.newsapi.models.ResponseDTO
 import com.example.newsapi.models.SortBy
