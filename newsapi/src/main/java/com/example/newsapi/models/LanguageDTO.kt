@@ -2,7 +2,7 @@ package com.example.newsapi.models
 
 import kotlinx.serialization.SerialName
 
-enum class Language {
+enum class LanguageDTO {
     @SerialName("ar")
     AR,
     @SerialName("de")
