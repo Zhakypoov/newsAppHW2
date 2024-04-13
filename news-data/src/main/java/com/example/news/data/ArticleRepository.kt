@@ -12,8 +12,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import toArticleDbo
 import java.io.IOException
@@ -38,24 +40,24 @@ class ArticleRepository(
     }
 
 
-    private fun getAllFromServer(): Flow<RequestResult<List<ArticleDBO>>> {
-         return flow { emit(api.everything())}
-            .map { result ->
+    private fun getAllFromServer(): Flow<RequestResult<ResponseDTO<ArticleDTO>>> {
+        val apiRequest = flow { emit(api.everything()) }
+            .onEach {result ->
                 if(result.isSuccess){
-                    val response: ResponseDTO<ArticleDTO> = result.getOrThrow()
-                    RequestResult.Success(response.articles)
-                }
-                else{
-                    RequestResult.Error(null)
+                    saveNetResponseToCache(checkNotNull(result.getOrThrow()).articles)
                 }
             }
-            .filterIsInstance<RequestResult.Success<List<ArticleDTO>>>()
-            .map { requestResult: RequestResult.Success<List<ArticleDTO>> ->
-                requestResult.map { dtos -> dtos.map { articleDto -> articleDto.toArticleDbo() } }
-            }
-            .onEach {requestResult: RequestResult<List<ArticleDBO>> ->
-                database.articlesDao.insert(requestResult.data)
-            }
+            .map { it.toRequestResult() }
+
+        val start = flowOf<RequestResult<ResponseDTO<ArticleDTO>>>(RequestResult.InProgress())
+
+        return merge<RequestResult<ResponseDTO<ArticleDTO>>>(apiRequest, start)
+    }
+
+
+    private suspend fun saveNetResponseToCache(data: List<ArticleDTO>){
+        val dbos = data.map { articleDto ->  articleDto.toArticleDbo() }
+        database.articlesDao.insert(dbos)
     }
 
     private fun getAllFromDatabase(): Flow<RequestResult.Success<List<ArticleDBO>>> {
@@ -74,22 +76,30 @@ class ArticleRepository(
 
 
 
-sealed class RequestResult<E>(internal val data: E){
-    class InProgress<E>(data: E) : RequestResult<E>(data)
+sealed class RequestResult<E>(internal val data: E? = null){
+    class InProgress<E>(data: E? = null) : RequestResult<E>(data)
     class Success<E>(data: E) : RequestResult<E>(data)
-    class Error<E>(data: E) : RequestResult<E>(data)
+    class Error<E> : RequestResult<E>()
 }
 
 
 internal fun <T: Any> RequestResult<T?>.requireData(): T = checkNotNull(data)
 
 
-internal fun <I, O> RequestResult<I>.map(mapper: (I) -> O): RequestResult<O>{
+internal fun <I, O> RequestResult<I>.map(mapper: (I?) -> O): RequestResult<O>{
     val outData = mapper(data)
     return when(this){
         is RequestResult.Success -> RequestResult.Success(outData)
-        is RequestResult.Error -> RequestResult.Error(outData)
+        is RequestResult.Error -> RequestResult.Error()
         is RequestResult.InProgress -> RequestResult.InProgress(outData)
+    }
+}
+
+internal fun <T> Result<T>.toRequestResult(): RequestResult<T>{
+    return when{
+        isSuccess -> RequestResult.Success(getOrThrow())
+        isFailure -> RequestResult.Error()
+        else -> error("Impossible branch")
     }
 }
 
