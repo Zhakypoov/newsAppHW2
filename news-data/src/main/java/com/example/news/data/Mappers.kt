@@ -57,6 +57,10 @@ internal fun ArticleDBO.toArticle() : Article {
     TODO("not implement")
 }
 
+internal fun ArticleDTO.toArticle() : Article {
+    TODO("not implement")
+}
+
 internal fun ArticleDTO.toArticleDbo() : ArticleDBO {
     TODO("not implement")
 }
