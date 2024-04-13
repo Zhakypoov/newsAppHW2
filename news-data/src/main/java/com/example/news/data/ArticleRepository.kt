@@ -38,8 +38,8 @@ class ArticleRepository(
     }
 
 
-    private fun getAllFromServer(): Flow<RequestResult.Success<List<ArticleDBO>?>> {
-        return flow { emit(api.everything())}
+    private fun getAllFromServer(): Flow<RequestResult<List<ArticleDBO>>> {
+         return flow { emit(api.everything())}
             .map { result ->
                 if(result.isSuccess){
                     val response: ResponseDTO<ArticleDTO> = result.getOrThrow()
@@ -49,14 +49,12 @@ class ArticleRepository(
                     RequestResult.Error(null)
                 }
             }
-            .filterIsInstance<RequestResult.Success<List<ArticleDTO>?>>()
-            .map { requestResult: RequestResult.Success<List<ArticleDTO>?> ->
-                requestResult.requireData()
-                    .map { articleDto -> articleDto.toArticleDbo() }
-                    .let { RequestResult.Success<List<ArticleDBO>?>(it) }
+            .filterIsInstance<RequestResult.Success<List<ArticleDTO>>>()
+            .map { requestResult: RequestResult.Success<List<ArticleDTO>> ->
+                requestResult.map { dtos -> dtos.map { articleDto -> articleDto.toArticleDbo() } }
             }
-            .onEach {requestResult ->
-                database.articlesDao.insert(requestResult.requireData())
+            .onEach {requestResult: RequestResult<List<ArticleDBO>> ->
+                database.articlesDao.insert(requestResult.data)
             }
     }
 
@@ -85,14 +83,15 @@ sealed class RequestResult<E>(internal val data: E){
 
 internal fun <T: Any> RequestResult<T?>.requireData(): T = checkNotNull(data)
 
-//internal fun <I, O> RequestResult<I?>.map(mapper: (I) -> O): RequestResult<O?> {
-//    val outData = mapper(data)
-//    return when(this){
-//        is RequestResult.Success -> RequestResult.Success(outData)
-//        is RequestResult.Error -> RequestResult.Error(outData)
-//        is RequestResult.InProgress -> RequestResult.InProgress(outData)
-//    }
-//}
+
+internal fun <I, O> RequestResult<I>.map(mapper: (I) -> O): RequestResult<O>{
+    val outData = mapper(data)
+    return when(this){
+        is RequestResult.Success -> RequestResult.Success(outData)
+        is RequestResult.Error -> RequestResult.Error(outData)
+        is RequestResult.InProgress -> RequestResult.InProgress(outData)
+    }
+}
 
 
 
