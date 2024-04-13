@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
+import toArticleDbo
 import java.io.IOException
 
 class ArticleRepository(
@@ -37,21 +38,25 @@ class ArticleRepository(
     }
 
 
-    private fun getAllFromServer(): Flow<RequestResult<List<ArticleDBO>?>> {
-        return flow { emit(api.everything()) }
-            .map {result ->
+    private fun getAllFromServer(): Flow<RequestResult.Success<List<ArticleDBO>?>> {
+        return flow { emit(api.everything())}
+            .map { result ->
                 if(result.isSuccess){
                     val response: ResponseDTO<ArticleDTO> = result.getOrThrow()
                     RequestResult.Success(response.articles)
-                }else{
+                }
+                else{
                     RequestResult.Error(null)
                 }
             }
             .filterIsInstance<RequestResult.Success<List<ArticleDTO>?>>()
             .map { requestResult: RequestResult.Success<List<ArticleDTO>?> ->
-                requestResult.map { dtos -> dtos.map { articleDto -> articleDto.toArticleDbo() } }
-            }.onEach { requestResult ->
-            database.articlesDao.insert(requestResult.data)
+                requestResult.requireData()
+                    .map { articleDto -> articleDto.toArticleDbo() }
+                    .let { RequestResult.Success<List<ArticleDBO>?>(it) }
+            }
+            .onEach {requestResult ->
+                database.articlesDao.insert(requestResult.requireData())
             }
     }
 
@@ -80,20 +85,14 @@ sealed class RequestResult<E>(internal val data: E){
 
 internal fun <T: Any> RequestResult<T?>.requireData(): T = checkNotNull(data)
 
-internal fun <I, O> RequestResult<I?>.map(mapper: (I) -> O): RequestResult<O?> {
-    val outData = mapper(data)
-    return when(this){
-        is RequestResult.Success -> RequestResult.Success(outData)
-        is RequestResult.Error -> RequestResult.Error(outData)
-        is RequestResult.InProgress -> RequestResult.InProgress(outData)
-    }
-}
+//internal fun <I, O> RequestResult<I?>.map(mapper: (I) -> O): RequestResult<O?> {
+//    val outData = mapper(data)
+//    return when(this){
+//        is RequestResult.Success -> RequestResult.Success(outData)
+//        is RequestResult.Error -> RequestResult.Error(outData)
+//        is RequestResult.InProgress -> RequestResult.InProgress(outData)
+//    }
+//}
 
-internal fun <T: Any> Result<T>.toRequestResult(): RequestResult<T>{
-    return when{
-        isSuccess -> RequestResult.Success(getOrThrow())
-        isFailure -> RequestResult.Error()
-        else -> error("Impossible branch")
-    }
-}
+
 
