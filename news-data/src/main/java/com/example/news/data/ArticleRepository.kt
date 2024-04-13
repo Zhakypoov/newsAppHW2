@@ -7,7 +7,9 @@ import com.example.newsapi.NewsApi
 import com.example.newsapi.models.mappers.ArticleDTO
 import com.example.newsapi.models.ResponseDTO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -38,6 +40,16 @@ class ArticleRepository(
 
 
         return cachedAllArticles.combine(remoteArticles,mergeStrategy::merge)
+            .flatMapConcat { result ->
+                if(result is RequestResult.Success){
+                    database.articlesDao.observeAll()
+                        .map { dbos -> dbos.map { it.toArticle() } }
+                        .map { RequestResult.Success(it) }
+                }
+                else{
+                    flowOf(result)
+                }
+            }
     }
 
 
@@ -62,8 +74,7 @@ class ArticleRepository(
     }
 
     private fun getAllFromDatabase(): Flow<RequestResult<List<ArticleDBO>>> {
-        val dbRequest = database.articlesDao
-            .getAll()
+        val dbRequest = database.articlesDao::getAll.asFlow()
             .map { RequestResult.Success(it) }
         val start = flowOf<RequestResult<List<ArticleDBO>>>(RequestResult.InProgress())
         return merge(start, dbRequest)
