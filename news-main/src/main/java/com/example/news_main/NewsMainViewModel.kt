@@ -2,7 +2,6 @@ package com.example.news_main
 
 import androidx.lifecycle.ViewModel
 import com.example.news.data.ArticleRepository
-import com.example.news.data.RequestResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

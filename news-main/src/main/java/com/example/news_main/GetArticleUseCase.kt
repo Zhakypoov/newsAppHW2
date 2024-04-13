@@ -1,7 +1,6 @@
 package com.example.news_main
 
 import com.example.news.data.ArticleRepository
-import com.example.news.data.RequestResult
 import com.example.news.data.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
