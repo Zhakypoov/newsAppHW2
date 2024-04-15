@@ -1,30 +1,44 @@
 package com.example.news_main
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.news.data.ArticleRepository
+import com.example.news.data.RequestResult
+import com.example.news.data.map
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 internal class NewsMainViewModel(
-  private val repository : ArticleRepository
-) : ViewModel(){
-  private val _state = MutableStateFlow(State.None)
-  val state: StateFlow<State>
-    get() = _state.asStateFlow()
+  private val getArticleUseCase: GetArticleUseCase
+) : ViewModel() {
+   val state: StateFlow<State> = getArticleUseCase()
+    .map { it.toState() }
+    .stateIn(viewModelScope, SharingStarted.Lazily, State.None)
 
-  private fun RequestResult<List<Article>>.toState(): State{
-    return when(this){
-      is RequestResult.Error -> State.Error(data)
-      is RequestResult.InProgress -> State.Loading(data)
-      is RequestResult.Success -> State.Success(data)
-    }
+}
+
+
+
+
+
+
+private fun RequestResult<List<Article>>.toState(): State{
+  return when(this){
+    is RequestResult.Error -> State.Error()
+    is RequestResult.InProgress -> State.Loading(data)
+    is RequestResult.Success -> State.Success(checkNotNull(data))
   }
 }
 
+
+
 sealed class State {
   object None : State()
-  class Loading : State()
+  class Loading(val articles: List<Article>?) : State()
   class Error : State()
   class Success(val articles: List<Article>) : State()
 }
