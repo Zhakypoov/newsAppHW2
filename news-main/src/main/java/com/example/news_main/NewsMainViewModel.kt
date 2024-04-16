@@ -5,20 +5,30 @@ import androidx.lifecycle.viewModelScope
 import com.example.news.data.ArticleRepository
 import com.example.news.data.RequestResult
 import com.example.news.data.map
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
+import javax.inject.Provider
 
-internal class NewsMainViewModel(
-  private val getArticleUseCase: GetArticleUseCase
+
+@HiltViewModel
+internal class NewsMainViewModel @Inject constructor(
+    getArticleUseCase: Provider<GetArticleUseCase>,
+//    private val repository: ArticleRepository
 ) : ViewModel() {
-   val state: StateFlow<State> = getArticleUseCase()
+   val state: StateFlow<State> = getArticleUseCase.get().invoke()
     .map { it.toState() }
     .stateIn(viewModelScope, SharingStarted.Lazily, State.None)
 
+
+//    fun forceUpdate(){
+//        val requestResultFlow = repository.fetchLatest()
+//    }
 }
 
 
@@ -38,7 +48,7 @@ private fun RequestResult<List<Article>>.toState(): State{
 
 sealed class State {
   object None : State()
-  class Loading(val articles: List<Article>?) : State()
-  class Error : State()
+  class Loading(val articles: List<Article>? = null) : State()
+  class Error(val articles: List<Article>? = null) : State()
   class Success(val articles: List<Article>) : State()
 }
