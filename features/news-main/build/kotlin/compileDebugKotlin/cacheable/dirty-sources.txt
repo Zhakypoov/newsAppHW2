@@ -1,0 +1,4 @@
+C:\Users\zhaku\AndroidStudioProjects\NewsAPP2\news-main\src\main\java\com\example\news_main\NewsMainViewModel.kt
+C:\Users\zhaku\AndroidStudioProjects\NewsAPP2\news-main\src\main\java\com\example\news_main\Article.kt
+C:\Users\zhaku\AndroidStudioProjects\NewsAPP2\news-main\src\main\java\com\example\news_main\NewsMainFeatureUI.kt
+C:\Users\zhaku\AndroidStudioProjects\NewsAPP2\news-main\src\main\java\com\example\news_main\GetArticleUseCase.kt
