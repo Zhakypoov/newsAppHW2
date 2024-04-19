@@ -1,4 +1,4 @@
-package com.example.newsapi.models.mappers
+package com.example.newsapi.models
 
 import com.example.newsapi.models.SourceDTO
 import com.example.newsapi.utils.DateTimeUTCSerializer

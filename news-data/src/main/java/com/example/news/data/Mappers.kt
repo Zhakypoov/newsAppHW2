@@ -1,6 +1,6 @@
 import com.example.database.models.ArticleDBO
 import com.example.news.data.model.Article
-import com.example.newsapi.models.mappers.ArticleDTO
+import com.example.newsapi.models.ArticleDTO
 
 //package com.example.news.data
 //
@@ -9,7 +9,7 @@ import com.example.newsapi.models.mappers.ArticleDTO
 //import com.example.news.data.model.Article
 //import com.example.news.data.model.Source
 //import com.example.newsapi.models.ArticleDTO
-//import com.example.newsapi.models.mappers.ArticleDTO
+//import com.example.newsapi.models.ArticleDTO
 //
 //
 //internal fun ArticleDBO.toArticle(): Article {

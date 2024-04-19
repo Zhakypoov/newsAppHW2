@@ -31,16 +31,11 @@ internal class NewsMainViewModel @Inject constructor(
 //    }
 }
 
-
-
-
-
-
 private fun RequestResult<List<Article>>.toState(): State{
   return when(this){
     is RequestResult.Error -> State.Error()
     is RequestResult.InProgress -> State.Loading(data)
-    is RequestResult.Success -> State.Success(checkNotNull(data))
+    is RequestResult.Success -> State.Success(data)
   }
 }
 
