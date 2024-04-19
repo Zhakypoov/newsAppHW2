@@ -23,13 +23,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @Composable
-fun NewsMain(){
-    NewsMain(viewModel = viewModel())
+fun NewsMainScreen(){
+    NewsMainScreen(viewModel = viewModel())
 }
 
 
 @Composable
-internal fun NewsMain(viewModel: NewsMainViewModel){
+internal fun NewsMainScreen(viewModel: NewsMainViewModel){
    val state by viewModel.state.collectAsState()
     when(val currentState = state){
         is State.Success -> Articles(currentState.articles)
@@ -42,7 +42,9 @@ internal fun NewsMain(viewModel: NewsMainViewModel){
 
 @Preview
 @Composable
-private fun Articles(articles: List<ArticleUI>){
+private fun Articles(
+    @PreviewParameter(ArticlesPreviewProvider::class, limit = 1) articles: List<ArticleUI>,
+){
     LazyColumn {
         items(articles){article ->
             key(article.id) {
@@ -56,7 +58,9 @@ private fun Articles(articles: List<ArticleUI>){
 
 @Preview
 @Composable
-internal fun Article(@PreviewParameter(ArticlePreviewProvider::class) article: ArticleUI){
+internal fun Article(
+    @PreviewParameter(ArticlesPreviewProvider::class, limit = 1) article: ArticleUI,
+){
    Column(modifier = Modifier.padding(8.dp)) {
        Text(text = article.title, style = MaterialTheme.typography.headlineMedium, maxLines = 1)
        Spacer(modifier = Modifier.size(8.dp))
@@ -90,3 +94,12 @@ private class ArticlePreviewProvider: PreviewParameterProvider<ArticleUI> {
         )
     )
 }
+
+private class ArticlesPreviewProvider : PreviewParameterProvider<List<ArticleUI>> {
+    private val articleProvider = ArticlePreviewProvider()
+
+    override val values = sequenceOf(
+        articleProvider.values.toList()
+    )
+}
+
