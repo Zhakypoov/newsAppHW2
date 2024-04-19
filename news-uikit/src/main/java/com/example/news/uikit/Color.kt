@@ -1,4 +1,4 @@
-package com.example.newsapp2.ui.theme
+package com.example.news.uikit
 
 import androidx.compose.ui.graphics.Color
 

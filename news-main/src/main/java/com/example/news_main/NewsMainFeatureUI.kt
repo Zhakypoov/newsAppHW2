@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
@@ -61,11 +62,11 @@ private fun ErrorMessage(state: State.Error){
     Box(
         Modifier
             .fillMaxWidth()
-            .background(NewsTheme.colorScheme.error)
+            .background(MaterialTheme.colorScheme.error)
             .padding(8.dp), contentAlignment = Alignment.Center
 
     ){
-        Text(text = "Error during update", color = NewsTheme.colorScheme.onError)
+        Text(text = "Error during update", color = MaterialTheme.colorScheme.onError)
     }
 }
 
@@ -112,10 +113,10 @@ internal fun Article(
     Column(modifier = Modifier.padding(8.dp)){
         Text(
             text = article.title ?: "No TITLE",
-            style = NewsTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineMedium,
             maxLines = 1)
         Spacer(modifier = Modifier.size(4.dp))
-        Text(text = article.description, style = NewsTheme.typography.bodyMedium, maxLines = 3)
+        Text(text = article.description, style = MaterialTheme.typography.bodyMedium, maxLines = 3)
     }
 }
 
