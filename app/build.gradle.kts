@@ -20,8 +20,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        buildConfigField("String","NEWS_API_KEY","\"\"")
-        buildConfigField("String","NEWS_API_BASE_URL","\"\"")
+        buildConfigField("String","NEWS_API_KEY","\"cb0a7c7b4b5a4626b2110aa666641a38\"")
+        buildConfigField("String","NEWS_API_BASE_URL","\"https://newsapi.org/v2/\"")
     }
 
     buildTypes {
@@ -75,4 +75,6 @@ dependencies {
     implementation(project(":database"))
     implementation(project(":news-common"))
     implementation(project(":news-main"))
+
+    debugImplementation(libs.okhttp.logging.interceptor)
 }

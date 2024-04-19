@@ -2,7 +2,9 @@ package com.example.newsapp2
 
 import android.content.Context
 import com.example.database.NewsDatabase
+import com.example.news.common.AndroidLogcatLogger
 import com.example.news.common.AppDispatchers
+import com.example.news.common.Logger
 
 import com.example.newsapi.NewsApi
 import dagger.Module
@@ -10,6 +12,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 
 import javax.inject.Singleton
 
@@ -20,11 +23,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providerNewsApi(): NewsApi{
-       return NewsApi(
-           baseUrl = BuildConfig.NEWS_API_BASE_URL,
-           apiKey = BuildConfig.NEWS_API_KEY
-       )
+    fun provideNewsApi(okHttpClient: OkHttpClient?): NewsApi{
+
+        return NewsApi(
+            baseUrl = BuildConfig.NEWS_API_BASE_URL,
+            apiKey = BuildConfig.NEWS_API_KEY,
+            okHttpClient = okHttpClient
+
+        )
     }
 
     @Provides
@@ -36,4 +42,8 @@ object AppModule {
     @Provides
     @Singleton
     fun providerAppCoroutineDispatchers(): AppDispatchers = AppDispatchers()
+
+
+    @Provides
+    fun provideLogger() : Logger = AndroidLogcatLogger()
 }
