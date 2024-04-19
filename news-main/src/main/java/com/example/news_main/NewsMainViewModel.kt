@@ -15,17 +15,15 @@ import javax.inject.Provider
 @HiltViewModel
 internal class NewsMainVIewModel @Inject constructor(
     getAllArticlesUseCase: Provider<GetArticleUseCase>,
-): ViewModel()
-{
+): ViewModel() {
     val state: StateFlow<State> = getAllArticlesUseCase.get().invoke(query = "android")
         .map { it.toState() }
-        .stateIn(viewModelScope, SharingStarted.Lazily,State.None)
+        .stateIn(viewModelScope, SharingStarted.Lazily, State.None)
 
-    fun forceUpdate(){
-
+    fun forceUpdate() {
+        TODO("Will not be implemented")
     }
-
-
+}
     private fun RequestResult<List<ArticleUI>>.toState(): State{
         return when(this){
             is RequestResult.Error -> State.Error(data)
@@ -33,9 +31,6 @@ internal class NewsMainVIewModel @Inject constructor(
             is RequestResult.Success -> State.Success(data)
         }
     }
-
-}
-
 
 
 internal sealed class State(val articles: List<ArticleUI>?){
